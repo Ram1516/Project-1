@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login and Welcome Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f0f0f0;
+        }
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            display: none;
+            text-align: center;
+        }
+        h2 {
+            margin-bottom: 20px;
+        }
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #28a745;
+            border: none;
+            color: white;
+            font-size: 16px;
+        }
+        .error {
+            color: red;
+            text-align: center;
+            margin-top: 10px;
+        }
+        .forgot-password-link {
+            display: block;
+            color: blue;
+            font-size: 14px;
+            text-decoration: underline;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+        .forgot-password-link:hover {
+            color: darkblue;
+        }
+        #welcome-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            text-align: center;
+            padding: 20px;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+        #welcome-container h2 {
+            font-size: 48px;
+            color: black;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            margin: 0;
+        }
+        #welcome-container p {
+            font-size: 24px;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            margin: 0;
+        }
+        .home-button {
+            background-color: blue;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .home-button:hover {
+            background-color: darkblue;
+        }
+        .register-link {
+            display: block;
+            color: blue;
+            font-size: 14px;
+            text-decoration: underline;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+        .register-link:hover {
+            color: darkblue;
+        }
+        #export-button {
+            display: none;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
+</head>
+<body>
+    <div id="login-container" class="container">
+        <h2>Login</h2>
+        <input type="text" id="username" placeholder="Username">
+        <input type="password" id="password" placeholder="Password">
+        <button onclick="login()">Login</button>
+        <a class="forgot-password-link" onclick="showForgotPasswordPage()">Forgot Password?</a>
+        <a class="register-link" onclick="showRegisterPage()">Register</a>
+        <div id="error-message" class="error"></div>
+    </div>
+    <div id="welcome-container">
+        <span style="position: absolute; top: 15px; right: 5%;">
+            <i class="fas fa-home fa-2x"></i>
+            <button class="home-button" onclick="showLoginPage()">Home</button>
+        </span>
+        <h2>Hi <span id="user-name"></span>, Welcome!</h2>
+        <p id="welcome-message"></p>
+<span style="position: absolute; top: 55px; right: 5%;">
+            <i class="fas fa-home fa-2x"></i>
+        <button class="export-button" onclick="exportToExcel()">Export to Excel</button>
+</span>
+    </div>
+    <div id="forgot-password-container" class="container">
+        <h2>Reset Password</h2>
+        <input type="text" id="reset-username" placeholder="Username">
+        <input type="password" id="new-password" placeholder="New Password">
+        <input type="password" id="confirm-password" placeholder="Confirm Password">
+        <button onclick="resetPassword()">Save</button>
+        <div id="reset-error-message" class="error"></div>
+    </div>
+    <div id="register-container" class="container">
+        <h2>Register</h2>
+        <input type="text" id="register-username" placeholder="Username">
+        <input type="password" id="register-password" placeholder="Password">
+        <input type="password" id="register-confirm-password" placeholder="Confirm Password">
+        <button onclick="register()">Register</button>
+        <div id="register-error-message" class="error"></div>
+    </div>
+    <script>
+        // Function to get users from local storage
+        function getUsers() {
+            return JSON.parse(localStorage.getItem('users')) || [];
+        }
+
+        // Function to save users to local storage
+        function saveUsers(users) {
+            localStorage.setItem('users', JSON.stringify(users));
+        }
+
+        // Initial setup with a default user for demonstration
+        if (!localStorage.getItem('users')) {
+            const initialUsers = [{ username: 'ramya', password: 'ramya@123' }];
+            saveUsers(initialUsers);
+        }
+
+        function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const errorMessage = document.getElementById('error-message');
+
+            if (!username || !password) {
+                errorMessage.textContent = 'Please enter username and password';
+                return;
+            }
+
+            const users = getUsers();
+            const user = users.find(user => user.username === username && user.password === password);
+
+            if (user) {
+                alert('Login successful!');
+                showWelcomePage(user.username);
+            } else {
+                errorMessage.textContent = 'Invalid username or password';
+            }
+        }
+
+        function showWelcomePage(username) {
+            document.getElementById('login-container').style.display = 'none';
+            document.getElementById('forgot-password-container').style.display = 'none';
+            document.getElementById('register-container').style.display = 'none';
+            document.getElementById('welcome-container').style.display = 'flex';
+            document.getElementById('user-name').textContent = username;
+
+            // Show the export button only if the user is "ramya"
+            if (username === 'ramya') {
+               document.getElementById('export-button').style.display = 'block';
+            } else {
+                document.getElementById('export-button').style.display = 'none';
+            }
+        }
+
+        function showLoginPage() {
+            document.getElementById('welcome-container').style.display = 'none';
+            document.getElementById('forgot-password-container').style.display = 'none';
+            document.getElementById('register-container').style.display = 'none';
+            document.getElementById('login-container').style.display = 'block';
+        }
+
+        function showForgotPasswordPage() {
+            document.getElementById('login-container').style.display = 'none';
+            document.getElementById('welcome-container').style.display = 'none';
+            document.getElementById('register-container').style.display = 'none';
+            document.getElementById('forgot-password-container').style.display = 'block';
+        }
+
+        function showRegisterPage() {
+            document.getElementById('login-container').style.display = 'none';
+            document.getElementById('welcome-container').style.display = 'none';
+            document.getElementById('forgot-password-container').style.display = 'none';
+            document.getElementById('register-container').style.display = 'block';
+        }
+
+        function resetPassword() {
+            const resetUsername = document.getElementById('reset-username').value;
+            const newPassword = document.getElementById('new-password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+            const resetErrorMessage = document.getElementById('reset-error-message');
+
+            if (!resetUsername || !newPassword || !confirmPassword) {
+                resetErrorMessage.textContent = 'Please fill out all fields';
+                return;
+            }
+
+            if (newPassword !== confirmPassword) {
+                resetErrorMessage.textContent = 'Passwords do not match';
+                return;
+            }
+
+            const users = getUsers();
+            const userIndex = users.findIndex(user => user.username === resetUsername);
+
+            if (userIndex !== -1) {
+                users[userIndex].password = newPassword;
+                saveUsers(users);
+                alert('Password reset successful!');
+                showLoginPage();
+            } else {
+                resetErrorMessage.textContent = 'Username not found';
+            }
+        }
+
+        function register() {
+            const registerUsername = document.getElementById('register-username').value;
+            const registerPassword = document.getElementById('register-password').value;
+            const registerConfirmPassword = document.getElementById('register-confirm-password').value;
+            const registerErrorMessage = document.getElementById('register-error-message');
+
+            if (!registerUsername || !registerPassword || !registerConfirmPassword) {
+                registerErrorMessage.textContent = 'Please fill out all fields';
+                return;
+            }
+
+            if (registerPassword !== registerConfirmPassword) {
+                registerErrorMessage.textContent = 'Passwords do not match';
+                return;
+            }
+
+            const users = getUsers();
+            const existingUser = users.find(user => user.username === registerUsername);
+
+            if (existingUser) {
+                registerErrorMessage.textContent = 'Username already exists';
+                return;
+            }
+
+            users.push({ username: registerUsername, password: registerPassword });
+            saveUsers(users);
+            alert('Registration successful!');
+            showLoginPage();
+        }
+
+        function exportToExcel() {
+            const users = getUsers();
+            const worksheet = XLSX.utils.json_to_sheet(users);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, 'Users');
+            XLSX.writeFile(workbook, 'users.xlsx');
+        }
+
+        // Initially show the login page
+        showLoginPage();
+    </script>
+</body>
+</html>

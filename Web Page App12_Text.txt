@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login Page</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            background-image: url('file:///C:/Users/Shivani.k/Pictures/T2.PNG'); 
+            background-size: cover;
+            background-position: center;
+        }
+        .container, .welcome-message {
+            background-color: #fff;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            width: 300px;
+        }
+        .container h2 {
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+        .container div {
+            margin-bottom: 20px;
+            position: relative;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input {
+            width: calc(100% - 40px);
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007BFF;
+            color: #fff;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            width: 100%;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .forgot-password,
+        .register-link {
+            display: block;
+            margin-top: 10px;
+            font-size: 14px;
+            color: #007BFF;
+            text-decoration: none;
+        }
+        .forgot-password:hover,
+        .register-link:hover {
+            text-decoration: underline;
+        }
+        .welcome-message {
+            display: none;
+            width: 100vw;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-image: url('file:///C:/Users/Shivani.k/Pictures/T3.PNG'); 
+            background-size: cover;
+            background-position: center;
+            color: white;
+            font-size: 36px;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        .welcome-message h2 {
+            margin: 0;
+        }
+        .home-button-container {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px; /* Space between the buttons */
+            position: absolute;
+            top: 20px;
+            right: 100px; /* Adjust as needed */
+        }
+        .toggle-password {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 0;
+            color: #007BFF;
+            font-size: 13px;
+        }
+    </style>
+    <script>
+        let credentials = JSON.parse(localStorage.getItem('credentials')) || [];
+        
+        function validateLogin(event) {
+            event.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const user = credentials.find(cred => cred.Username === username && cred.Password === password);
+
+            if (user) {
+                document.getElementById('login-form').style.display = 'none';
+                document.getElementById('welcome-message').style.display = 'flex';
+                document.getElementById('user-name').textContent = username;
+                
+                // Show or hide the download button based on username
+                if (username === 'Shivani') {
+                    document.getElementById('download-btn').style.display = 'inline-block';
+                } else {
+                    document.getElementById('download-btn').style.display = 'none';
+                }
+            } else {
+                alert("Invalid username or password.");
+            }
+        }
+
+        function registerUser(event) {
+            event.preventDefault();
+            const username = document.getElementById('reg-username').value;
+            const password = document.getElementById('reg-password').value;
+
+            const newUser = { Username: username, Password: password };
+            credentials.push(newUser);
+
+            localStorage.setItem('credentials', JSON.stringify(credentials));
+
+            alert("Registration successful!");
+            document.getElementById('reg-username').value = username;
+            document.getElementById('reg-password').value = password;
+            validateLogin(event);
+        }
+
+        function resetPassword(event) {
+            event.preventDefault();
+            const username = document.getElementById('reset-username').value;
+            const newPassword = document.getElementById('reset-password').value;
+
+            const user = credentials.find(cred => cred.Username === username);
+
+            if (user) {
+                user.Password = newPassword;
+
+                localStorage.setItem('credentials', JSON.stringify(credentials));
+
+                alert("Password reset successful!");
+                showLogin();
+            } else {
+                alert("Username not found.");
+            }
+        }
+
+        function showLogin() {
+            document.getElementById('login-form').style.display = 'block';
+            document.getElementById('register-form').style.display = 'none';
+            document.getElementById('reset-form').style.display = 'none';
+            document.getElementById('download-btn').style.display = 'none'; // Hide button when showing login
+        }
+
+        function showRegister() {
+            document.getElementById('login-form').style.display = 'none';
+            document.getElementById('register-form').style.display = 'block';
+            document.getElementById('reset-form').style.display = 'none';
+            document.getElementById('download-btn').style.display = 'none'; // Hide button when showing register
+        }
+
+        function showReset() {
+            document.getElementById('login-form').style.display = 'none';
+            document.getElementById('register-form').style.display = 'none';
+            document.getElementById('reset-form').style.display = 'block';
+            document.getElementById('download-btn').style.display = 'none'; // Hide button when showing reset
+        }
+
+        function goHome() {
+            document.getElementById('welcome-message').style.display = 'none';
+            window.location.reload(); 
+            showLogin();
+        }
+
+        function downloadCSV() {
+            const csvRows = [];
+            const headers = ['Username', 'Password'];
+            csvRows.push(headers.join(','));
+
+            for (const cred of credentials) {
+                const values = [cred.Username, cred.Password];
+                csvRows.push(values.join(','));
+            }
+
+            const csvString = csvRows.join('\n');
+            const blob = new Blob([csvString], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'credentials.csv';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+        function togglePasswordVisibility(elementId) {
+            const passwordField = document.getElementById(elementId);
+            const toggleButton = passwordField.nextElementSibling;
+
+            if (passwordField.type === 'password') {
+                passwordField.type = 'text';
+                toggleButton.textContent = 'Hide';
+            } else {
+                passwordField.type = 'password';
+                toggleButton.textContent = 'Show';
+            }
+        }
+    </script>
+</head>
+<body onload="showLogin()">
+    <div class="container">
+        <h2>Login Page</h2>
+        <div id="login-form">
+            <form onsubmit="validateLogin(event)">
+                <div>
+                    <label for="username">Username:</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                <div>
+                    <label for="password">Password:</label>
+                    <div style="position: relative;">
+                        <input type="password" id="password" name="password" required>
+                        <button type="button" class="toggle-password" onclick="togglePasswordVisibility('password')" style="position: absolute; right: -110px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer;">Show</button>
+                    </div>
+                </div>
+                <div>
+                    <button type="submit">Login</button>
+                </div>
+                <a href="#" class="register-link" onclick="showRegister()">Register</a>
+                <a href="#" class="forgot-password" onclick="showReset()">Forgot Password?</a>
+            </form>
+        </div>
+
+        <div id="register-form" style="display: none;">
+            <h2>Register</h2>
+            <form onsubmit="registerUser(event)">
+                <div>
+                    <label for="reg-username">Username:</label>
+                    <input type="text" id="reg-username" name="username" required>
+                </div>
+                <div>
+                    <label for="reg-password">Password:</label>
+                    <div style="position: relative;">
+                        <input type="password" id="reg-password" name="password" required>
+                        <button type="button" class="toggle-password" onclick="togglePasswordVisibility('reg-password')" style="position: absolute; right: -110px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer;">Show</button>
+                    </div>
+                </div>
+                <div>
+                    <button type="submit">Register</button>
+                </div>
+                <a href="#" class="register-link" onclick="showLogin()">Back to Login</a>
+            </form>
+        </div>
+
+        <div id="reset-form" style="display: none;">
+            <h2>Reset Password</h2>
+            <form onsubmit="resetPassword(event)">
+                <div>
+                    <label for="reset-username">Username:</label>
+                    <input type="text" id="reset-username" name="username" required>
+                </div>
+                <div>
+                    <label for="reset-password">New Password:</label>
+                    <div style="position: relative;">
+                        <input type="password" id="reset-password" name="password" required>
+                        <button type="button" class="toggle-password" onclick="togglePasswordVisibility('reset-password')" style="position: absolute; right: -110px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer;">Show</button>
+                    </div>
+                </div>
+                <div>
+                    <button type="submit">Reset Password</button>
+                </div>
+                <a href="#" class="register-link" onclick="showLogin()">Back to Login</a>
+            </form>
+        </div>
+    </div>
+
+    <div class="welcome-message" id="welcome-message">
+        <h2>Welcome, <span id="user-name"></span></h2>
+        <div class="home-button-container">
+            <button id="download-btn" onclick="downloadCSV()" style="display:none;">Download CSV</button>
+            <button onclick="goHome()">Home</button>
+        </div>
+    </div>
+</body>
+</html>
