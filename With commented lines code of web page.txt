@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">   <!-- Character encoding set to UTF-8 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">   <!-- Ensure the page is responsive on all devices -->
+    <title>Login and Welcome Page</title>   <!-- Title of the HTML document -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;  /* Set the font family for the entire document */
+            margin: 0;  /* Remove default margin */
+            height: 100vh;  /* Make the body full height */
+            display: flex;  /* Use flexbox for layout */
+            justify-content: center;  /* Center content horizontally */
+            align-items: center;  /* Center content vertically */
+            background-color: #f0f0f0;  /* Light grey background color */
+        }
+        .container {
+            background-color: #fff;  /* White background for containers */
+            padding: 20px;  /* Padding inside the container */
+            border-radius: 5px;  /* Rounded corners */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);  /* Subtle shadow around container */
+            width: 300px;  /* Set width of containers */
+            display: none;  /* Containers are hidden by default */
+            text-align: center;   /* Center text inside the containers */
+        }
+        h2 {
+            margin-bottom: 20px;  /* Space below headings */
+        }
+        input, button {
+            width: 100%;  /* Make inputs and buttons take full width */
+            padding: 10px;  /* Padding inside inputs and buttons */
+            margin: 10px 0;  /* Space above and below inputs and buttons */
+            border: 1px solid #ccc;  /* Light grey border */
+            border-radius: 5px;  /* Rounded corners */
+        }
+        button {
+            background-color: #28a745;  /* Green background color for buttons */
+            border: none;  /* Remove border */
+            color: white;  /* White text */
+            font-size: 16px;  /* Font size for buttons */
+        }
+        .error {
+            color: red;  /* Red color for error messages */
+            text-align: center;  /* Center the error messages */
+            margin-top: 10px;  /* Space above error messages */
+        }
+        .forgot-password-link {
+            display: block;  /* Display as block to apply margins */
+            color: blue;  /* Blue color for links */
+            font-size: 14px;  /* Smaller font size */
+            text-decoration: underline;  /* Underline the link */
+            margin-top: 10px;   /* Space above the link */
+            cursor: pointer;  /* Change cursor to pointer on hover */
+        }
+        .forgot-password-link:hover {
+            color: darkblue;  /* Darker blue on hover */
+        }
+        #welcome-container {
+            position: absolute;  /* Absolute positioning to cover the entire screen */
+            top: 0;  /* Position at the top */
+            left: 0;  /* Position at the left */
+            width: 100%;  /* Full width */
+            height: 100%;  /* Full height */
+            background-size: cover;  /* Ensure background covers the container */
+            color: white;  /* White text */
+            display: flex;  /* Flexbox layout */
+            justify-content: center;  /* Center content horizontally */
+            align-items: center;  /* Center content vertically */
+            flex-direction: column;  /* Stack content vertically */
+            text-align: center;  /* Center text */
+            padding: 20px;  /* Padding inside the container */
+            box-sizing: border-box;  /* Include padding in element's width and height */
+            overflow: hidden;  /* Hide overflow content */
+        }
+        #welcome-container h2 {
+            font-size: 48px;  /* Large font size for the heading */
+            color: black;  /* Black text for the heading */
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);  /* Shadow effect on the text */
+            margin: 0;  /* Remove margin around the heading */
+        }
+        #welcome-container p {
+            font-size: 24px;  /* Medium font size for the paragraph */
+            color: white;  /* White text */
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);  /* Shadow effect on the text */
+            margin: 0;  /* Remove margin around the paragraph */
+        }
+        .home-button {
+            background-color: blue;  /* Blue background for home button */
+            color: white;   /* White text */
+            border: none;  /* Remove border */
+            padding: 10px 20px;  /* Padding inside the button */
+            font-size: 16px;  /* Font size for the button */
+            border-radius: 5px;  /* Rounded corners */
+            cursor: pointer;  /* Change cursor to pointer on hover */
+        }
+        .home-button:hover {
+            background-color: darkblue;  /* Darker blue on hover */
+        }
+        .register-link {
+            display: block;   /* Display as block to apply margins */
+            color: blue;  /* Blue color for links */
+            font-size: 14px;  /* Smaller font size */
+            text-decoration: underline;  /* Underline the link */
+            margin-top: 10px;  /* Space above the link */
+            cursor: pointer;  /* Change cursor to pointer on hover */
+        }
+        .register-link:hover {
+            color: darkblue;  /* Darker blue on hover */
+        }
+        #export-button {
+            display: none;  /* Initially hide the export button */
+            background-color: #007bff;  /* Blue background for the button */
+            color: white;  /* White text */
+            border: none;  /* Remove border */
+            padding: 10px;  /* Padding inside the button */
+            font-size: 16px;  /* Font size for the button */
+            border-radius: 5px;  /* Rounded corners */
+            cursor: pointer;   /* Change cursor to pointer on hover */
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script> <!-- Include library for Excel export -->
+</head>
+<body>
+    <div id="login-container" class="container">   <!-- Container for login form -->
+        <h2>Login</h2>   <!-- Heading for login form -->
+        <input type="text" id="username" placeholder="Username">   <!-- Username input field -->
+        <input type="password" id="password" placeholder="Password">    <!-- Password input field -->
+        <button onclick="login()">Login</button>    <!-- Login button triggers login function -->
+        <a class="forgot-password-link" onclick="showForgotPasswordPage()">Forgot Password?</a>    <!-- Link to forgot password page -->
+        <a class="register-link" onclick="showRegisterPage()">Register</a>    <!-- Link to registration page -->
+        <div id="error-message" class="error"></div>    <!-- Container for error messages -->
+    </div>
+    <div id="welcome-container">    <!-- Container for welcome message -->
+        <span style="position: absolute; top: 15px; right: 5%;">    <!-- Position home button at the top-right -->
+            <i class="fas fa-home fa-2x"></i>    <!-- Home icon (Font Awesome) -->
+            <button class="home-button" onclick="showLoginPage()">Home</button>    <!-- Home button -->
+        </span>
+        <h2>Hi <span id="user-name"></span>, Welcome!</h2>    <!-- Personalized welcome message -->
+        <p id="welcome-message"></p>    <!-- Placeholder for additional welcome messages -->
+        <span style="position: absolute; top: 55px; right: 5%;">    <!-- Position export button below home button -->
+            <i class="fas fa-home fa-2x"></i>    <!-- Home icon (Font Awesome) -->
+            <button class="export-button" onclick="exportToExcel()">Export to Excel</button>     <!-- Export to Excel button -->
+        </span>
+    </div>
+    <div id="forgot-password-container" class="container">  <!-- Container for forgot password form -->
+        <h2>Reset Password</h2>  <!-- Heading for reset password form -->
+        <input type="text" id="reset-username" placeholder="Username">  <!-- Username input field -->
+        <input type="password" id="new-password" placeholder="New Password">  <!-- New password input field -->
+        <input type="password" id="confirm-password" placeholder="Confirm Password">  <!-- Confirm password input field -->
+        <button onclick="resetPassword()">Save</button>  <!-- Save button triggers resetPassword function -->
+        <div id="reset-error-message" class="error"></div>   <!-- Container for error messages -->
+    </div>
+    <div id="register-container" class="container">    <!-- Container for registration form -->
+        <h2>Register</h2>   <!-- Heading for registration form -->
+        <input type="text" id="register-username" placeholder="Username">   <!-- Username input field -->
+        <input type="password" id="register-password" placeholder="Password">    <!-- Password input field -->
+        <input type="password" id="register-confirm-password" placeholder="Confirm Password">    <!-- Confirm password input field -->
+        <button onclick="register()">Register</button>   <!-- Register button triggers register function -->
+        <div id="register-error-message" class="error"></div>   <!-- Container for error messages -->
+    </div>
+    <script>
+        // Function to get users from local storage
+        function getUsers() {
+         // Retrieve 'users' from local storage, parse JSON, return array or empty array if null
+            return JSON.parse(localStorage.getItem('users')) || [];  // If 'users' is not found in localStorage, return an empty array.
+
+        }
+
+        // Function to set users in local storage
+        function setUsers(users) {
+            localStorage.setItem('users', JSON.stringify(users));  // Convert the JavaScript array of users into a JSON string and store it in localStorage under the key 'users'.
+        }
+
+        // Show login page
+        function showLoginPage() {
+            document.getElementById('login-container').style.display = 'block';     // Show login container
+            document.getElementById('welcome-container').style.display = 'none';   // Hide welcome container
+            document.getElementById('forgot-password-container').style.display = 'none';    // Hide forgot password container
+            document.getElementById('register-container').style.display = 'none';    // Hide register container
+        }
+
+        // Show forgot password page
+        function showForgotPasswordPage() {
+            document.getElementById('login-container').style.display = 'none';    // Hide login container
+            document.getElementById('welcome-container').style.display = 'none';    // Hide welcome container
+            document.getElementById('forgot-password-container').style.display = 'block';    // Show forgot password container
+            document.getElementById('register-container').style.display = 'none';     // Hide register container
+        }
+
+        // Show registration page
+        function showRegisterPage() {
+            document.getElementById('login-container').style.display = 'none';    // Hide login container
+            document.getElementById('welcome-container').style.display = 'none';    // Hide welcome container
+            document.getElementById('forgot-password-container').style.display = 'none';    // Hide forgot password container
+            document.getElementById('register-container').style.display = 'block';     // Show register container
+        }
+
+        // Function to handle login
+        function login() {
+            const username = document.getElementById('username').value;    // Get username input
+            const password = document.getElementById('password').value;    // Get password input
+
+            const users = getUsers();    // Get users from local storage 
+            const user = users.find(u => u.username === username && u.password === password);     // Find matching user
+
+            if (user) {
+                // If user is found, show welcome message
+                document.getElementById('user-name').textContent = username; // Display username
+                document.getElementById('welcome-message').textContent = 'You have successfully logged in.';   // Welcome message
+                document.getElementById('login-container').style.display = 'none';   // Hide login container
+                document.getElementById('welcome-container').style.display = 'flex';   // Show welcome container
+            } else {
+                // If user is not found, show error message
+                document.getElementById('error-message').textContent = 'Invalid username or password.';
+            }
+        }
+
+        // Function to handle registration
+        function register() {
+            const username = document.getElementById('register-username').value;   // Get registration username input
+            const password = document.getElementById('register-password').value;   // Get registration password input
+            const confirmPassword = document.getElementById('register-confirm-password').value;    // Get registration confirm password input
+
+            if (password !== confirmPassword) {
+                // If passwords do not match, show error message
+                document.getElementById('register-error-message').textContent = 'Passwords do not match.';
+                return;
+            }
+
+            const users = getUsers(); // Get users from local storage
+            const userExists = users.some(u => u.username === username);    // Check if user already exists
+
+            if (userExists) {
+                document.getElementById('register-error-message').textContent = 'Username already exists.';    // If user already exists, show error message
+            } else {
+                // If user does not exist, save new user and show welcome message
+                users.push({ username, password });   // Add new user
+                setUsers(users);   // Save users in local storage
+                document.getElementById('user-name').textContent = username;   // Display username
+                document.getElementById('welcome-message').textContent = 'Registration successful.';   // Welcome message
+                document.getElementById('register-container').style.display = 'none';    // Hide register container
+                document.getElementById('welcome-container').style.display = 'flex';   // Show welcome container
+            }
+        }
+
+        // Function to handle password reset
+        function resetPassword() {
+            const username = document.getElementById('reset-username').value;   // Get reset username input
+            const newPassword = document.getElementById('new-password').value;    // Get reset new password input
+            const confirmPassword = document.getElementById('confirm-password').value;    // Get reset confirm password input
+
+            if (newPassword !== confirmPassword) {
+                // If passwords do not match, show error message
+                document.getElementById('reset-error-message').textContent = 'Passwords do not match.';
+                return;
+            }
+
+            const users = getUsers();    // Get users from local storage
+            const user = users.find(u => u.username === username);   // Find matching user
+
+            if (user) {
+                // If user is found, update password and show success message
+                user.password = newPassword;   // Update password
+                setUsers(users);   // Save users in local storage
+                document.getElementById('reset-error-message').textContent = 'Password reset successful.';  
+            } else {
+                // If user is not found, show error message
+                document.getElementById('reset-error-message').textContent = 'Username not found.';   
+            }
+        }
+
+        // Initial page load, show login page
+        showLoginPage();
+    </script>
+</body>
+</html>
+
+
+
+
